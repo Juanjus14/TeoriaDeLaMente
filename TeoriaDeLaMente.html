@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theory of Mind Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        #text {
+            font-size: 1.8rem;
+            margin: 25px 0;
+        }
+        .buttons {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 18px 30px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #ddd;
+        }
+        .previous-button {
+            padding: 12px 18px;
+            font-size: 1.2rem;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+        .result-table-container {
+            max-height: 300px; /* Set the maximum height */
+            overflow-y: auto; /* Enable vertical scrolling */
+            margin-top: 20px; /* Add spacing */
+            border: 1px solid #ddd; /* Optional: Add a border to emphasize the scrollable area */
+            border-radius: 5px; /* Optional: Match rounded corners */
+        }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .result-table th, .result-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .result-table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="test-screen">
+            <img id="image" src="" alt="Test Image">
+            <p id="text"></p>
+            <div class="buttons">
+                <button onclick="recordAnswer(true)">☀️</button>
+                <button onclick="recordAnswer(false)">🌙</button>
+                <button class="previous-button" onclick="previousQuestion()">Previous</button>
+            </div>
+        </div>
+        <div id="results-screen" style="display: none;">
+            <button onclick="showResults()">Show Results</button>
+        </div>
+        <div id="final-results" style="display: none;">
+            <h3>Results</h3>
+            <div class="result-table-container">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const images = [
+        { src: 'images/image1.jpg', text: 'Señala la cara que está feliz.' },
+            { src: 'images/image1.jpg', text: 'Señala la cara que está triste.' },
+            { src: 'images/image1.jpg', text: 'Señala cara que está rabiosa.' },
+            { src: 'images/image1.jpg', text: 'Señala la cara que está asustada.' },
+            { src: 'images/image5.jpg', text: 'Esta es María. María quiere una galleta para comer.' },
+            { src: 'images/image6.jpg', text: '¿Qué quiere María?' },  
+            { src: 'images/image7.jpg', text: '¿Cómo se sentirá María si ella recibe una galleta? ' },
+            { src: 'images/image8.jpg', text: 'Esta es Ana. Esta mañana, Ana vio sus gafas sobre la mesa. Ahora ella quiere sus gafas.' },  
+            { src: 'images/image9.jpg', text: '¿En dónde cree Ana que están sus gafas?' },
+            { src: 'images/image10.jpg', text: 'Camila está en el Parque. Juan también está en el parque. Camila y Juan están mirando una estatua. ' },
+            { src: 'images/image11.jpg', text: 'Cuando Camila mira la estatua, ¿Ella cómo la ve?' },
+            { src: 'images/image11.jpg', text: 'Cuando Juan mira la estatua, ¿Él cómo la ve? ' },  
+            { src: 'images/image12.jpg', text: 'Éste es Miguel. Miguel quiere sus llaves. ' },
+            { src: 'images/image13.jpg', text: 'Miguel tiene dos juegos de llaves que son exactamente iguales. Un juego de llaves está sobre el sofá y el otro juego está sobre la cama.' },  
+            { src: 'images/image14.jpg', text: 'Hoy Miguel vio las llaves sobre el sofá. Miguel no vio las llaves sobre la cama.' },
+            { src: 'images/image15.jpg', text: '¿A dónde irá Miguel a tomar sus llaves? ' },  
+            { src: 'images/image16.jpg', text: 'Éste es Antonio. Antonio está leyendo un libro ' },
+            { src: 'images/image17.jpg', text: 'Cuando terminó de leer, Antonio puso el libro sobre la mesa y se fue a la cocina a comer algo.' },  
+            { src: 'images/image18.jpg', text: 'Mira, Andrea entra y pasa el libro de la mesa al cajón del armario.' },
+            { src: 'images/image19.jpg', text: 'Y luego Andrea se va.' },  
+            { src: 'images/image20.jpg', text: 'Mira, Antonio regresa a seguir leyendo. ' },
+            { src: 'images/image21.jpg', text: '¿Antonio en dónde puso el libro? ' },  
+            { src: 'images/image21.jpg', text: '¿En dónde está el libro ahora? ' },
+            { src: 'images/image21.jpg', text: '¿Antonio en dónde buscará el libro primero? ' },  
+            { src: 'images/image22.jpg', text: 'Éste es Carlos. Es el cumpleaños de Carlos. ' },
+            { src: 'images/image23.jpg', text: 'Carlos quiere un avión de juguete para su cumpleaños. ' },  
+            { src: 'images/image24.jpg', text: 'El papá cree que Carlos quiere un tren para su cumpleaños. ' },
+            { src: 'images/image25.jpg', text: 'El papá le compró un tren a Carlos. Carlos no sabe nada sobre el tren. Carlos cree que su papá le compró un avión. ' },
+            { src: 'images/image26.jpg', text: '¿Qué quiere Carlos? ' },
+            { src: 'images/image26.jpg', text: '¿Qué cree Carlos que su papá le compró? ' },  
+            { src: 'images/image27.jpg', text: 'Si Carlos cree que su papá le compró un avión, ¿Cómo se sentirá? ' },
+            { src: 'images/image28.jpg', text: 'Mira, el papá de Carlos de dio el tren.' },  
+            { src: 'images/image26.jpg', text: '¿Qué cree el papá de Carlos que Carlos quiere? ' },
+            { src: 'images/image27.jpg', text: 'Cuándo el papá de Carlos le dé el tren a su hijo, ¿El papá cómo cree que Carlos se sentirá?' },  
+            { src: 'images/image27.jpg', text: '¿Cómo se sintió realmente Carlos cuando su papá le dio el tren? ' },
+            { src: 'images/image29.jpg', text: 'Él es Luis Luis está preparando la cena ' },  
+            { src: 'images/image30.jpg', text: 'Él hizo pastas y ensalada. Él puso las pastas en un tazón y la ensalada en otro tazón.' },
+            { src: 'images/image31.jpg', text: 'Luis puso el tazón de pastas sobre el mesón de la cocina y el tazón de ensalada sobre la mesa del comedor.' },  
+            { src: 'images/image32.jpg', text: 'Mira. Luis sale de la cocina. ' },
+            { src: 'images/image33.jpg', text: 'Luis se va a la sala a leer el periódico.' },  
+            { src: 'images/image34.jpg', text: '¿Cuál tazón puso Luis sobre el mesón de la cocina? ' },
+            { src: 'images/image34.jpg', text: '¿Cuál tazón puso Luis sobre la mesa del comedor? ' },  
+            { src: 'images/image35.jpg', text: 'Esta es Laura. Laura entró a la cocina. Ella tomó el tazón del mesón de la cocina y el tazón de la mesa del comedor y comió un poco de los dos tazones. ' },
+            { src: 'images/image36.jpg', text: 'Cuando Laura terminó de comer, puso los tazones en su puesto, pero los cambió de lugar. Ella puso el tazón de ensalada sobre el mesón de la cocina y el tazón de pastas sobre la mesa del comedor. ' },
+            { src: 'images/image34.jpg', text: '¿Cuál tazón puso Laura sobre el mesón de la cocina?' },  
+            { src: 'images/image34.jpg', text: '¿Cuál tazón puso Laura sobre la mesa del comedor? ' },
+            { src: 'images/image37.jpg', text: 'Más tarde, Luis quiso algo de comer. Él le pidió a Laura que le trajera el tazón que estaba sobre el mesón de la cocina. ' },  
+            { src: 'images/image34.jpg', text: '¿Cuál de los tazones quiere Luis realmente?' },
+            { src: 'images/image38.jpg', text: 'Estos son Santiago y su mamá' },  
+            { src: 'images/image39.jpg', text: 'Es el cumpleaños de Santiago. Él tendrá una gran fiesta en la noche. ' },
+            { src: 'images/image40.jpg', text: 'La mamá de Santiago lo va a sorprender con una bicicleta nueva. La mamá ha escondido la bicicleta en el armario. ' },  
+            { src: 'images/image41.jpg', text: 'Santiago y su mamá están hablando en la cocina. Santiago dice: “Mami, quiero una bicicleta nueva para mi cumpleaños.” Ahora recuerda, la mamá quiere que la bicicleta sea una sorpresa así que ella dice: “Lo siento, no te compre una bicicleta, en vez de eso te compré unos patines.” ' },
+            { src: 'images/image42.jpg', text: 'Así que Santiago cree que su mamá le compró unos patines. ' },  
+            { src: 'images/image43.jpg', text: 'Entonces Santiago se despide de su mamá. Santiago dice: “Ok. Voy a la casa de mi amigo, regresaré más tarde” ' },
+            { src: 'images/image44.jpg', text: 'Al salir, Santiago abre la puerta del armario para buscar una chaqueta y entonces ve la bicicleta nueva.  Santiago se pone feliz. Él piensa para sí mismo, “¡Sí! Mi mamá no me compró unos patines, en realidad me compró una bicicleta nueva” La mamá no vio que Santiago abrió la puerta del armario.  La mamá no sabe que Santiago encontró la bicicleta. ' },
+            { src: 'images/image45.jpg', text: '¿Ahora Santiago que piensa que le compraron de cumpleaños? ' }, 
+            { src: 'images/image46.jpg', text: 'Más tarde, el abuelo de Santiago, llegó para su cumpleaños.  El abuelo le pregunta a la mamá: “¿Que cree Santiago que le compraste para su cumpleaños?” ' },
+            { src: 'images/image45.jpg', text: '¿Qué le responde la mamá al abuelo de Santiago?' }
+        ];
+
+        let currentQuestion = 0;
+        let answers = [];
+
+        const excludedQuestions = new Set([5, 8, 10, 13, 14, 15, 17, 18, 19, 20, 21, 25, 26, 27, 28, 32, 36, 37, 38, 39, 40, 43, 44, 47, 49, 50, 51, 52, 53, 54, 55, 57]);
+
+        function updateScreen() {
+            if (currentQuestion < images.length) {
+                document.getElementById('image').src = images[currentQuestion].src;
+                document.getElementById('text').textContent = images[currentQuestion].text;
+            } else {
+                document.getElementById('test-screen').style.display = 'none';
+                document.getElementById('results-screen').style.display = 'block';
+            }
+        }
+
+        function recordAnswer(isCorrect) {
+            answers[currentQuestion] = { question: currentQuestion + 1, result: isCorrect ? 'Correct' : 'Incorrect' };
+            currentQuestion++;
+            updateScreen();
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                updateScreen();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('results-screen').style.display = 'none';
+            document.getElementById('final-results').style.display = 'block';
+            const resultsTable = document.getElementById('results-table');
+            resultsTable.innerHTML = '';
+            let displayIndex = 1;
+            answers.forEach((answer, index) => {
+                if (!excludedQuestions.has(answer.question)) {
+                    const row = `<tr><td>${displayIndex}</td><td>${answer.result}</td></tr>`;
+                    resultsTable.innerHTML += row;
+                    displayIndex++;
+                }
+            });
+        }
+
+        // Initialize the first screen
+        updateScreen();
+    </script>
+</body>
+</html>
